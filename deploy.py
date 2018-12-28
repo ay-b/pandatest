@@ -5,6 +5,7 @@ import shutil
 import requests
 import json
 
+
 def check_deploy_folder_exist(stuff_path, clean=0):
     if os.path.isdir(stuff_path) and clean == 1:
         print("INFO:Deploy folder already exists. Deleting...")
@@ -34,6 +35,7 @@ def get_git_repo(repo, stuff_path):
     cmd = "git clone " + repo + " " + stuff_path
     check_cmd_exit_code(cmd)
 
+
 def create_images_folder(stuff_path):
     print("INFO:Creating images folder")
     os.mkdir(stuff_path + "/public/images")
@@ -42,7 +44,6 @@ def create_images_folder(stuff_path):
     else:
         print("ERROR: Error creating images folder")
         exit(1)
-
 
 
 def check_content_type(content_url):
@@ -63,6 +64,7 @@ def unzip_content(content_folder, filename):
     cmd = "rm " + content_folder + "/" + filename
     os.system(cmd)
 
+
 def download_content(content_url, content_folder, filename):
     print("INFO:Downloading content bundle.")
     check_content_type(content_url)
@@ -72,11 +74,14 @@ def download_content(content_url, content_folder, filename):
     print("INFO:Finished downloading.")
     return filename
 
+
 def build_container(stuff_path, name, tag, dockerfile_path, assets_path):
+    print("INFO:Building " + name + ":" + tag + " container")
     cmd = "docker build -t " + name + ":" + tag + " -f " +  stuff_path + dockerfile_path + " " + stuff_path + assets_path
     check_cmd_exit_code(cmd)
     cmd = "docker images | grep " + name
     os.system(cmd)
+
 
 def check_cmd_exit_code(cmd):
     exit_code = os.system(cmd)
@@ -123,9 +128,7 @@ def main():
 
     # Working with docker
     print("INFO:Building docker containers")
-    print("INFO:Building DB container")
     build_container(stuff_path, "mongo", "panda", "/db/Dockerfile", "/db/")
-    print("INFO:Building node container")
     build_container(stuff_path, "node", "panda", "/Dockerfile ", " ")
     print("INFO:Launching the stack with docker-compose.")
     cmd = "docker-compose up -d"
