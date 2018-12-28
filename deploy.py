@@ -89,14 +89,15 @@ def check_cmd_exit_code(cmd):
 
 def health_check(check_url):
     chk_counter: int = 0
-    while True:
+    checking = True
+    while checking:
         chk_counter += 1
         try:
             response = json.dumps(requests.get(check_url).text)
             if 'false' in response:
                 print("\nERROR: CRITICAL: Stack is unhealthy")
                 print("INFO: " + response)
-                exit(1)
+                checking = False
             else:
                 sys.stdout.write("\rOK: Cycle #" + str(chk_counter))
                 time.sleep(1)
