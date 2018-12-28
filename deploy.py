@@ -82,6 +82,17 @@ def download_content(content_url, content_folder, filename):
     print("Finished downloading.")
     return filename
 
+def build_container(stuff_path, name, tag, dockerfile_path, assets_path):
+    cmd = "docker build -t " + name + ":" + tag + " -f " +  stuff_path + dockerfile_path + " " + stuff_path + assets_path
+    print(cmd)
+    exit_code = os.system(cmd)
+    if exit_code == 0:
+        print("Container built successfully.")
+    else:
+        print("ERROR: Container creation failed. Exiting.")
+        exit(1)
+    cmd = "docker images | grep " + name
+    os.system(cmd)
 
 def main():
     stuff_path = "./temp_deploy"
@@ -90,11 +101,20 @@ def main():
     content_folder = stuff_path + "/public/images"
     filename = content_url.rsplit('/', 1)[1]
 
+    # Downloading/preparing stuff
     create_deploy_folder(stuff_path)
     get_git_repo(repo, stuff_path)
     create_images_folder(stuff_path)
     download_content(content_url, content_folder, filename)
     unzip_content(content_folder,filename)
+
+    # Working with docker
+    print("Building docker containers")
+    print("Building DB container")
+    build_container(stuff_path, "mongo", "panda", "/db/Dockerfile", "/db/")
+    print("Building node container")
+    build_container(stuff_path, "node", "panda", "/Dockerfile ", " ")
+    
 
 
 if __name__ == "__main__":
